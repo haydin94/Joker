@@ -17,7 +17,7 @@ public class JDBCConnector {
     private final static String DB_NAME = "JokeeDB";
     static String url = "jdbc:mysql://localhost/Jokee";
 //    private final static String DB_URL = url;
-    private final static String DB_URL = DB_DRIVER + DB_HOST + DB_PORT + DB_NAME;
+    private final static String DB_URL = DB_DRIVER + DB_HOST + DB_PORT + DB_NAME + "?autoReconnect=true&useSSL=false";
     private static Connection con;
     private static Statement stmt;
     private static final String DB_USER = "root";
