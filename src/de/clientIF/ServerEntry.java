@@ -50,11 +50,12 @@ public class ServerEntry extends HttpServlet {
         out.println("RequestLength: " + request.getContentLength());
         out.println("RequestType: " + request.getContentType());
         try {
+            out.println("Conneting to Database...");
             JDBCConnector.initConnection();
+            out.println("Connection to Database etablished!");
         } catch (DatabaseException ex) {
-        out.println("Connection to Database could not be etablished!");
-        out.println("MESSAGE: " + ex.getMessage());
-            
+            out.println("Connection to Database could not be etablished!");
+            out.println("MESSAGE: " + ex.getMessage());
         }
         out.close();
     }
@@ -66,8 +67,6 @@ public class ServerEntry extends HttpServlet {
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
      * response)
      */
-    
-    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -171,8 +170,8 @@ public class ServerEntry extends HttpServlet {
         DtoJokeView result = JokeControl.getInstance().getJokeView(id, justCom, start, count);
         writeResponse(response, result);
     }
-    
-     private void reqUserView(String[] request, HttpServletResponse response) throws EmptyResultException, IOException {
+
+    private void reqUserView(String[] request, HttpServletResponse response) throws EmptyResultException, IOException {
         if (request != null && request.length < 4) {
             return; // THROW ERROR !!
         }
@@ -184,7 +183,7 @@ public class ServerEntry extends HttpServlet {
 
         System.out.println("reqUserView logged=" + logged + ", id=" + id + ", justCom=" + justCom + ", start=" + start + ", count=" + count);
         DtoUserView result = UserControl.getInstance().getUserView(id, logged, start, count);
-         System.out.println("de.clientIF.ServerEntry.reqUserView(): RESULT = \n" + result);
+        System.out.println("de.clientIF.ServerEntry.reqUserView(): RESULT = \n" + result);
         writeResponse(response, result);
     }
 

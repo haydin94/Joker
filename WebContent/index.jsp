@@ -13,5 +13,8 @@
     </head>
     <body>
         <h1><b>JOKEE!</b></h1>
+        <form action="${pageContext.request.contextPath}/Servlet" method="get">
+            <input type="submit" name="button1" value="Go to Request Site" />
+        </form>
     </body>
 </html>
