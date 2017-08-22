@@ -24,6 +24,8 @@ import de.services.exceptions.EmptyBodyException;
 import de.services.exceptions.EmptyResultException;
 import de.services.exceptions.NoSuchUserException;
 import de.services.exceptions.SqlQueryException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,15 +41,14 @@ public class ServerEntry extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.doGet(request, response); 
-        ObjectOutputStream out = new ObjectOutputStream(response.getOutputStream());
-        out.writeChars("Willkommen beim Jokee-Server!");
-        out.writeChars("Bitte benutzen Sie die Post Methode um eine Anfrage zu stellen");
-        out.writeChars("\n --> Anfrage von " + request.getLocalAddr());
-        out.writeChars("RequestMethod: " + request.getMethod());
-        out.writeChars("RequestURL: " + request.getRequestURL());
-        out.writeChars("RequestLength: " + request.getContentLength());
-        out.writeChars("RequestType: " + request.getContentType());
+        PrintWriter out = new PrintWriter(response.getOutputStream());
+        out.println("Willkommen beim Jokee-Server!");
+        out.println("Bitte benutzen Sie die Post Methode um eine Anfrage zu stellen");
+        out.println("\n --> Anfrage von " + request.getLocalAddr());
+        out.println("RequestMethod: " + request.getMethod());
+        out.println("RequestURL: " + request.getRequestURL());
+        out.println("RequestLength: " + request.getContentLength());
+        out.println("RequestType: " + request.getContentType());
         out.close();
     }
 
