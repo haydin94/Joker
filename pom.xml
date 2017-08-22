@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.github.haydin94</groupId>
             <artifactId>SharedUtils</artifactId>
-            <version>-SNAPSHOT</version>
+            <version>master-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <name>Server</name>
