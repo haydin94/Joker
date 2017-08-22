@@ -11,19 +11,23 @@ import de.services.exceptions.DatabaseException;
 
 public class JDBCConnector {
 
-    private final static String url = "jdbc:mysql://localhost/Jokee";
+    private final static String DB_DRIVER = "jdbc:mysql://";
+    private final static String DB_HOST = "mysql:";//localhost/";
+    private final static String DB_PORT = "3306/";//8080
+    private final static String DB_NAME = "JokeeDB";
+    private final static String DB_URL = DB_DRIVER + DB_HOST + DB_PORT + DB_NAME;
     private static Connection con;
     private static Statement stmt;
-    private static String user = "root";
-    private static String pw = "";
+    private static final String DB_USER = "root";
+    private static final String DB_PWD = "neuwied94";
 
     public static void initConnection() throws DatabaseException {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Properties props = new Properties();
-            props.setProperty("user", user);
-//			props.setProperty("password", pw);
-            con = DriverManager.getConnection(url, props);
+            props.setProperty("user", DB_USER);
+            props.setProperty("password", DB_PWD);
+            con = DriverManager.getConnection(DB_URL, props);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage());

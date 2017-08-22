@@ -49,6 +49,13 @@ public class ServerEntry extends HttpServlet {
         out.println("RequestURL: " + request.getRequestURL());
         out.println("RequestLength: " + request.getContentLength());
         out.println("RequestType: " + request.getContentType());
+        try {
+            JDBCConnector.initConnection();
+        } catch (DatabaseException ex) {
+        out.println("Connection to Database could not be etablished!");
+        out.println("MESSAGE: " + ex.getMessage());
+            
+        }
         out.close();
     }
 
