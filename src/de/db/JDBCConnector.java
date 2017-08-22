@@ -21,6 +21,18 @@ public class JDBCConnector {
     private static final String DB_USER = "root";
     private static final String DB_PWD = "neuwied94";
 
+    public static String getDB_URL() {
+        return DB_URL;
+    }
+
+    public static String getDB_USER() {
+        return DB_USER;
+    }
+
+    public static String getDB_PWD() {
+        return DB_PWD;
+    }
+    
     public static void initConnection() throws DatabaseException {
         try {
             Class.forName("com.mysql.jdbc.Driver");

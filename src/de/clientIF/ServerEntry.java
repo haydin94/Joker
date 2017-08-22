@@ -24,7 +24,6 @@ import de.services.exceptions.EmptyBodyException;
 import de.services.exceptions.EmptyResultException;
 import de.services.exceptions.NoSuchUserException;
 import de.services.exceptions.SqlQueryException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -50,12 +49,15 @@ public class ServerEntry extends HttpServlet {
         out.println("RequestLength: " + request.getContentLength());
         out.println("RequestType: " + request.getContentType());
         try {
-            out.println("Conneting to Database...");
+            out.println("Conneting to Database with URL: " + JDBCConnector.getDB_URL());
+            out.println("User: " + JDBCConnector.getDB_USER() + " Pwd: " + JDBCConnector.getDB_PWD());
             JDBCConnector.initConnection();
             out.println("Connection to Database etablished!");
         } catch (DatabaseException ex) {
             out.println("Connection to Database could not be etablished!");
+            out.println("Connection to Database could not be etablished!");
             out.println("MESSAGE: " + ex.getMessage());
+            out.println("LOCALIZEDMESSAGE: " + ex.getLocalizedMessage());
         }
         out.close();
     }
