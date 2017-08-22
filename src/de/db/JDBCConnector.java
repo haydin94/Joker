@@ -15,6 +15,8 @@ public class JDBCConnector {
     private final static String DB_HOST = "mysql:";//localhost/";
     private final static String DB_PORT = "3306/";//8080
     private final static String DB_NAME = "JokeeDB";
+    static String url = "jdbc:mysql://localhost/Jokee";
+//    private final static String DB_URL = url;
     private final static String DB_URL = DB_DRIVER + DB_HOST + DB_PORT + DB_NAME;
     private static Connection con;
     private static Statement stmt;

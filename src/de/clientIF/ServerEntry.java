@@ -36,9 +36,9 @@ import javax.servlet.ServletException;
  */
 @WebServlet("/Servlet")
 public class ServerEntry extends HttpServlet {
-
+    
     private static final long serialVersionUID = 1L;
-
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out = new PrintWriter(response.getOutputStream());
@@ -62,6 +62,7 @@ public class ServerEntry extends HttpServlet {
             out.println("MESSAGE: " + ex.getMessage());
             out.println("LOCALIZEDMESSAGE: " + ex.getLocalizedMessage());
         }
+        out.flush();
         out.close();
     }
 
@@ -96,7 +97,7 @@ public class ServerEntry extends HttpServlet {
         printRequestInfo(request, reqBody);
         System.out.println(Requests.ParamType.TYPE + "=" + type);
         System.out.println(Requests.ParamType.REQUEST + "=" + req);
-
+        
         if (type != null && type.equals(Requests.ParamValue.UPDATE)) {
         } else {
             try {
@@ -113,7 +114,7 @@ public class ServerEntry extends HttpServlet {
             }
         }
     }
-
+    
     private void handleSelectRequest(String req, String[] strRequest, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
         switch (req) {
             case Requests.ParamValue.ParamSelect.CARD_USER:
@@ -136,11 +137,11 @@ public class ServerEntry extends HttpServlet {
                 break;
             case Requests.ParamValue.ParamSelect.WITZ_BETWEEN:
                 break;
-
+            
             default:
         }
     }
-
+    
     private void reqLogin(String[] request, HttpServletResponse response) throws DatabaseException, SqlQueryException, EmptyResultException, IOException {
         if (request != null && request.length < 2) {
             return; // THROW ERROR !!
@@ -152,7 +153,7 @@ public class ServerEntry extends HttpServlet {
             Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void reqViewAllJokes(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException, SqlQueryException {
         if (request != null && request.length < 3) {
             return; // THROW ERROR !!
@@ -165,7 +166,7 @@ public class ServerEntry extends HttpServlet {
         result = JokeControl.getInstance().getAllJokesView(category, start, length);
         writeResponse(response, result);
     }
-
+    
     private void reqJokeView(String[] request, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
         if (request != null && request.length < 4) {
             return; // THROW ERROR !!
@@ -174,12 +175,12 @@ public class ServerEntry extends HttpServlet {
         boolean justCom = Boolean.parseBoolean(request[1]);
         int start = Integer.parseInt(request[2]);
         int count = Integer.parseInt(request[3]);
-
+        
         System.out.println("reqJokeView id=" + id + ", justCom=" + justCom + ", start=" + start + ", count=" + count);
         DtoJokeView result = JokeControl.getInstance().getJokeView(id, justCom, start, count);
         writeResponse(response, result);
     }
-
+    
     private void reqUserView(String[] request, HttpServletResponse response) throws EmptyResultException, IOException {
         if (request != null && request.length < 4) {
             return; // THROW ERROR !!
@@ -189,13 +190,13 @@ public class ServerEntry extends HttpServlet {
         boolean justCom = Boolean.parseBoolean(request[2]);
         int start = Integer.parseInt(request[3]);
         int count = Integer.parseInt(request[4]);
-
+        
         System.out.println("reqUserView logged=" + logged + ", id=" + id + ", justCom=" + justCom + ", start=" + start + ", count=" + count);
         DtoUserView result = UserControl.getInstance().getUserView(id, logged, start, count);
         System.out.println("de.clientIF.ServerEntry.reqUserView(): RESULT = \n" + result);
         writeResponse(response, result);
     }
-
+    
     private void reqUser(String request, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
         int id = -1;
         id = Integer.parseInt(request);
@@ -204,7 +205,7 @@ public class ServerEntry extends HttpServlet {
 //        result = UserControl.getInstance().getUserById(id);
         writeResponse(response, result);
     }
-
+    
     private void reqJoke(String request, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
         int id = -1;
         id = Integer.parseInt(request);
@@ -213,10 +214,10 @@ public class ServerEntry extends HttpServlet {
 //        result = JokeControl.getInstance().getWitzEntityById(id);
         writeResponse(response, result);
     }
-
+    
     private String[] readRequest(BufferedReader reader, int size) throws IOException, EmptyBodyException {
         ArrayList<String> list = new ArrayList<>();
-
+        
         int i = 0;
         String tmp = null;
         while ((tmp = reader.readLine()) != null) {
@@ -231,13 +232,17 @@ public class ServerEntry extends HttpServlet {
         String[] result = (String[]) list.toArray(new String[list.size()]);
         return result;
     }
-
+    
     private void writeResponse(HttpServletResponse response, Object responseObj) throws IOException {
         ObjectOutputStream out = new ObjectOutputStream(response.getOutputStream());
-        out.writeObject(responseObj);
+        try {
+            out.writeObject(responseObj);
+        } catch (IOException ex) {
+            response.sendError(ResponseCodes.IOERROR, ex.getMessage());
+        }
         out.close();
     }
-
+    
     private void printRequestInfo(HttpServletRequest request, String[] body) {
         System.out.println("\n --> Anfrage von " + request.getLocalAddr());
         System.out.println("RequestMethod: " + request.getMethod());
@@ -248,5 +253,5 @@ public class ServerEntry extends HttpServlet {
             System.out.println("ReqBody " + i + ": " + body[i]);
         }
     }
-
+    
 }

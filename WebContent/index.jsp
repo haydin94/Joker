@@ -14,7 +14,7 @@
     <body>
         <h1><b>JOKEE!</b></h1>
         <form action="${pageContext.request.contextPath}/Servlet" method="get">
-            <input type="submit" name="button1" value="Go to Request Site" />
+            <input type="submit" name="button1" value="Request" />
         </form>
     </body>
 </html>

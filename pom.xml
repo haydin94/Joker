@@ -63,16 +63,17 @@
             <version>3.0.1</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <!--            <groupId>de.haydin</groupId>
+        <!--        <dependency>
+            <groupId>de.haydin</groupId>
             <artifactId>SharedUtils</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <type>jar</type>-->
+            <type>jar</type>
+        </dependency>-->
+        <dependency>
             <groupId>com.github.haydin94</groupId>
             <artifactId>SharedUtils</artifactId>
             <version>-SNAPSHOT</version>
         </dependency>
-
     </dependencies>
     <name>Server</name>
 </project>
