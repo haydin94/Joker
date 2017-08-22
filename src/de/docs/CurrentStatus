@@ -1,0 +1,3 @@
+
+DataWitz bezieht noch nicht "bewertungVon" und "anzahlKommentare"
+zudem nochmal überlegen wie mit anzahlBewertung machen (am besten Raus und all diese in eine extra Tabelle)
