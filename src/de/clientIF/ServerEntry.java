@@ -56,8 +56,8 @@ public class ServerEntry extends HttpServlet {
             out.println("Connection to Database etablished!");
             out.println("JokeView: ID = 1, justComments = false, start = 0, count = 20");
             out.println(ViewFactory.getInstance().createJokeView(1, false, 0, 20));
+            JDBCConnector.closeConnect();
         } catch (DatabaseException ex) {
-            out.println("Connection to Database could not be etablished!");
             out.println("Connection to Database could not be etablished!");
             out.println("MESSAGE: " + ex.getMessage());
             out.println("LOCALIZEDMESSAGE: " + ex.getLocalizedMessage());
@@ -76,7 +76,11 @@ public class ServerEntry extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             JDBCConnector.initConnection();
-        } catch (DatabaseException e) {
+        } catch (DatabaseException ex) {
+            PrintWriter out = new PrintWriter(response.getOutputStream());
+            out.println("Connection to Database could not be etablished!");
+            out.println("MESSAGE: " + ex.getMessage());
+            out.println("LOCALIZEDMESSAGE: " + ex.getLocalizedMessage());
         }
 
         // Lese Anfrage (Body)
