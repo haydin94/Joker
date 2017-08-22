@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import de.control.UserControl;
 import de.control.JokeControl;
+import de.control.ViewFactory;
 import de.db.JDBCConnector;
 import de.haydin.model.entities.DataUser;
 import de.haydin.model.entities.DataJoke;
@@ -53,6 +54,8 @@ public class ServerEntry extends HttpServlet {
             out.println("User: " + JDBCConnector.getDB_USER() + " Pwd: " + JDBCConnector.getDB_PWD());
             JDBCConnector.initConnection();
             out.println("Connection to Database etablished!");
+            out.println("JokeView: ID = 1, justComments = false, start = 0, count = 20");
+            out.println(ViewFactory.getInstance().createJokeView(1, false, 0, 20));
         } catch (DatabaseException ex) {
             out.println("Connection to Database could not be etablished!");
             out.println("Connection to Database could not be etablished!");
