@@ -27,6 +27,7 @@ import de.services.exceptions.SqlQueryException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletException;
 
 /**
  * Servlet implementation class Servlet
@@ -36,6 +37,20 @@ public class ServerEntry extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        super.doGet(request, response); 
+        ObjectOutputStream out = new ObjectOutputStream(response.getOutputStream());
+        out.writeChars("Willkommen beim Jokee-Server!");
+        out.writeChars("Bitte benutzen Sie die Post Methode um eine Anfrage zu stellen");
+        out.writeChars("\n --> Anfrage von " + request.getLocalAddr());
+        out.writeChars("RequestMethod: " + request.getMethod());
+        out.writeChars("RequestURL: " + request.getRequestURL());
+        out.writeChars("RequestLength: " + request.getContentLength());
+        out.writeChars("RequestType: " + request.getContentType());
+        out.close();
+    }
+
     /**
      * @param request
      * @param response
@@ -43,6 +58,8 @@ public class ServerEntry extends HttpServlet {
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
      * response)
      */
+    
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
