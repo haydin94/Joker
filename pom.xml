@@ -5,6 +5,13 @@
     <artifactId>Server1</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
+    <repositories>
+        <!--Damit kann man abhängigkeiten aus github runterladen gehe auf die Seite für mehr info!-->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
@@ -56,11 +63,15 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>de.haydin</groupId>
+            <!--            <groupId>de.haydin</groupId>
             <artifactId>SharedUtils</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <type>jar</type>
+            <type>jar</type>-->
+            <groupId>com.github.haydin94</groupId>
+            <artifactId>SharedUtils</artifactId>
+            <version>-SNAPSHOT</version>
         </dependency>
+
     </dependencies>
     <name>Server</name>
 </project>
