@@ -103,7 +103,6 @@ public class ServerEntry extends HttpServlet {
         printRequestInfo(request, reqBody);
         System.out.println(Requests.ParamType.TYPE + "=" + type);
         System.out.println(Requests.ParamType.REQUEST + "=" + req);
-
         if (type != null && type.equals(Requests.ParamValue.UPDATE)) {
         } else {
             try {
@@ -232,12 +231,20 @@ public class ServerEntry extends HttpServlet {
             i++;
             System.out.println("Body: " + tmp);
         }
-        reader.reset();
-        reader.close();
+        try {
+            reader.reset();
+            reader.close();
+        } catch (IOException ex) {
+            System.out.println("reader fehler " + ex.getMessage());
+            ex.printStackTrace();
+        }
         if (list.get(0) == null) {
+            System.out.println("Verdammt warum EmptyBody??");
             throw new EmptyBodyException();
         }
+
         String[] result = (String[]) list.toArray(new String[list.size()]);
+        System.out.println("ReadRequest ende!");
         return result;
     }
 
