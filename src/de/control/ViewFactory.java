@@ -7,13 +7,11 @@ import de.haydin.model.unions.DtoCardComment;
 import de.haydin.model.unions.DtoCardJokeTC;
 import de.haydin.model.unions.DtoJokeView;
 import de.haydin.model.unions.DtoUserView;
-import de.haydin.model.utils.ViewFactoryIF;
 import de.model.dao.CommentDAO;
 import de.model.dao.JokeDAO;
 import de.model.dao.UserDAO;
 import de.model.entity.DataImage;
 import de.services.exceptions.DatabaseException;
-import de.services.exceptions.SqlQueryException;
 import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,7 +24,7 @@ import java.util.logging.Logger;
  *
  * @author aydins
  */
-public class ViewFactory implements ViewFactoryIF {
+public class ViewFactory {
 
     private static ViewFactory factory;
 
@@ -40,29 +38,23 @@ public class ViewFactory implements ViewFactoryIF {
         return factory;
     }
 
-    @Override
-    public DtoJokeView createJokeView(int jokeId, boolean justComments, int start, int count) {
+    public DtoJokeView createJokeView(int jokeId, boolean justComments, int start, int count) throws DatabaseException, SQLException {
         DtoJokeView result = new DtoJokeView();
-        try {
-            if (!justComments) {        // if not just Comments -> means also the JokeCard
-                PreparedStatement ps = JokeDAO.getInstance().getJokeCard(true);
-                DBService.setInt(ps, 1, jokeId);
-                ResultSet rs = DBService.execPrepStmt(ps);
-                result.setJoke(ORM.mapDataJoke(rs, "j"));
-                result.setUserJoke(ORM.mapDataUser(rs, "u"));
-                createUserImage(result.getUserJoke(), false);
-            }
-            // Always get Comments
-            result.setComments(createCommentCards(jokeId, start, count));
-        } catch (DatabaseException | SqlQueryException | SQLException ex) {
-            Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
+        if (!justComments) {        // if not just Comments -> means also the JokeCard
+            PreparedStatement ps = JokeDAO.getInstance().getJokeCard(true);
+            DBService.setInt(ps, 1, jokeId);
+            ResultSet rs = DBService.execPrepStmt(ps);
+            result.setJoke(ORM.mapDataJoke(rs, "j"));
+            result.setUserJoke(ORM.mapDataUser(rs, "u"));
+            createUserImage(result.getUserJoke(), false);
         }
+        // Always get Comments
+        result.setComments(createCommentCards(jokeId, start, count));
         result.setComments(createCommentCards(jokeId, start, count));
         return result;
     }
 
-    @Override
-    public DtoUserView createUserView(int userId, boolean logged, int start, int count) {
+    public DtoUserView createUserView(int userId, boolean logged, int start, int count) throws DatabaseException, SQLException{
         DtoUserView result = new DtoUserView();
         if (logged) {
             result.setUser(createLUser(userId));
@@ -75,8 +67,7 @@ public class ViewFactory implements ViewFactoryIF {
 
     }
 
-    @Override
-    public ArrayList<DtoCardComment> createCommentCards(int jokeId, int start, int count) {
+    public ArrayList<DtoCardComment> createCommentCards(int jokeId, int start, int count) throws DatabaseException, SQLException{
         ArrayList<DtoCardComment> result = new ArrayList<>();
         PreparedStatement ps = CommentDAO.getInstance().getCommentCardBetween(true);
         DBService.setInt(ps, 1, jokeId);
@@ -91,14 +82,13 @@ public class ViewFactory implements ViewFactoryIF {
                 createUserImage(comment.getUser(), true);
                 result.add(comment);
             }
-        } catch (DatabaseException | SqlQueryException | SQLException ex) {
+        } catch (DatabaseException  | SQLException ex) {
             Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
 
-    @Override
-    public ArrayList<DtoCardJokeTC> createAllJokesView(String category, int start, int count) {
+    public ArrayList<DtoCardJokeTC> createAllJokesView(String category, int start, int count) throws DatabaseException, SQLException{
         category = category == null || category.equals("") ? "%" : category;
         PreparedStatement ps = JokeDAO.getInstance().getAllJokesViewBetween(true, true);
         DBService.setString(ps, 1, category);
@@ -108,13 +98,13 @@ public class ViewFactory implements ViewFactoryIF {
         try {
             ResultSet rs = DBService.execPrepStmt(ps);
             result = mapCardJokeTC(rs);
-        } catch (DatabaseException | SqlQueryException | SQLException ex) {
+        } catch (DatabaseException | SQLException ex) {
             Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
 
-    private ArrayList<DtoCardJokeTC> createUserJokes(int userId, int start, int count) {
+    private ArrayList<DtoCardJokeTC> createUserJokes(int userId, int start, int count) throws DatabaseException, SQLException{
         PreparedStatement ps = JokeDAO.getInstance().getUserJokesBetween(true, true);
         DBService.setInt(ps, 1, userId);
         DBService.setInt(ps, 2, start);
@@ -123,7 +113,7 @@ public class ViewFactory implements ViewFactoryIF {
         try {
             ResultSet rs = DBService.execPrepStmt(ps);
             result = mapCardJokeTC(rs);
-        } catch (DatabaseException | SqlQueryException | SQLException ex) {
+        } catch (DatabaseException | SQLException ex) {
             Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -151,7 +141,7 @@ public class ViewFactory implements ViewFactoryIF {
         return result;
     }
 
-    private DataUser createUser(int userId) {
+    private DataUser createUser(int userId) throws DatabaseException, SQLException {
         DataUser user = null;
         PreparedStatement ps = UserDAO.getInstance().getUser(true);
         DBService.setInt(ps, 1, userId);
@@ -160,14 +150,14 @@ public class ViewFactory implements ViewFactoryIF {
             rs = DBService.execPrepStmt(ps);
             user = ORM.mapDataUser(rs, "u");
 
-        } catch (DatabaseException | SqlQueryException | SQLException ex) {
+        } catch (DatabaseException  | SQLException ex) {
             Logger.getLogger(ViewFactory.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
         return user;
     }
 
-    private DataLUser createLUser(int userId) {
+    private DataLUser createLUser(int userId) throws DatabaseException, SQLException {
         DataLUser user = null;
         PreparedStatement ps = UserDAO.getInstance().getLuser(true);
         DBService.setInt(ps, 1, userId);
@@ -175,7 +165,7 @@ public class ViewFactory implements ViewFactoryIF {
         try {
             rs = DBService.execPrepStmt(ps);
             user = ORM.mapDataLuser(rs, "u");
-        } catch (DatabaseException | SqlQueryException | SQLException ex) {
+        } catch (DatabaseException | SQLException ex) {
             Logger.getLogger(ViewFactory.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
@@ -196,7 +186,7 @@ public class ViewFactory implements ViewFactoryIF {
                 path = img.getPathNorm() + img.getUser_id() + img.getImage_id();
             }
             user.setImg(new File(path));
-        } catch (DatabaseException | SqlQueryException | SQLException ex) {
+        } catch (DatabaseException | SQLException ex) {
             System.out.println("ViewFactory.createUserImage(): Img for User " + user.getUser_id() + " cannot be load!");
 //            Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
         }

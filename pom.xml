@@ -9,6 +9,7 @@
         <!--Damit kann man abhängigkeiten aus github runterladen gehe auf die Seite für mehr info!-->
         <repository>
             <id>jitpack.io</id>
+            <name>jitpack</name>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
@@ -72,7 +73,7 @@
         <dependency>
             <groupId>com.github.haydin94</groupId>
             <artifactId>SharedUtils</artifactId>
-            <version>master-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
     <name>Server</name>

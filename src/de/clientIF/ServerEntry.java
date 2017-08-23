@@ -23,9 +23,10 @@ import de.services.exceptions.DatabaseException;
 import de.services.exceptions.DatabaseInconsistenceException;
 import de.services.exceptions.EmptyBodyException;
 import de.services.exceptions.EmptyResultException;
+import de.services.exceptions.FailedToLoadException;
 import de.services.exceptions.NoSuchUserException;
-import de.services.exceptions.SqlQueryException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +41,22 @@ public class ServerEntry extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override
+    public void init() throws ServletException {
+        System.out.println("Initializing Servlet...");
+        super.init();
+        System.out.println("Servlet Initialized!");
+        System.out.println("Conneting to Database with URL: " + JDBCConnector.getDB_URL());
+        System.out.println("User: " + JDBCConnector.getDB_USER() + " Pwd: " + JDBCConnector.getDB_PWD());
+        try {
+            JDBCConnector.initConnection();
+        } catch (DatabaseException ex) {
+            System.out.println("DatabaseException: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        System.out.println("Connection to Database etablished!");
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out = new PrintWriter(response.getOutputStream());
         out.println("Willkommen beim Jokee-Server!");
@@ -49,21 +66,18 @@ public class ServerEntry extends HttpServlet {
         out.println("RequestURL: " + request.getRequestURL());
         out.println("RequestLength: " + request.getContentLength());
         out.println("RequestType: " + request.getContentType());
+        out.println("JokeView: ID = 1, justComments = false, start = 0, count = 20");
+        DtoJokeView jv = null;
         try {
-            out.println("Conneting to Database with URL: " + JDBCConnector.getDB_URL());
-            out.println("User: " + JDBCConnector.getDB_USER() + " Pwd: " + JDBCConnector.getDB_PWD());
-            JDBCConnector.initConnection();
-            out.println("Connection to Database etablished!");
-            out.println("JokeView: ID = 1, justComments = false, start = 0, count = 20");
-            DtoJokeView jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
-            out.println(jv);
-            writeResponse(response, jv);
-            JDBCConnector.closeConnect();
+            jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
         } catch (DatabaseException ex) {
-            out.println("Connection to Database could not be etablished!");
-            out.println("MESSAGE: " + ex.getMessage());
-            out.println("LOCALIZEDMESSAGE: " + ex.getLocalizedMessage());
+            Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
         }
+        out.println(jv);
+        writeResponse(response, jv);
+        out.println("Connection to Database could not be etablished!");
         out.flush();
         out.close();
     }
@@ -110,17 +124,16 @@ public class ServerEntry extends HttpServlet {
             } catch (DatabaseException e) {
                 response.sendError(ResponseCodes.DATABSEERROR, "Error while connecting to the Database!");
                 e.printStackTrace();
-            } catch (SqlQueryException e) {
-                response.sendError(ResponseCodes.SQLERROR, "Error in SQL code, please contact the programmer!");
-                e.printStackTrace();
             } catch (EmptyResultException e) {
                 response.sendError(ResponseCodes.SQLERROR, e.getMessage());
                 e.printStackTrace();
+            } catch (SQLException ex) {
+                Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
-    private void handleSelectRequest(String req, String[] strRequest, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
+    private void handleSelectRequest(String req, String[] strRequest, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException, SQLException {
         switch (req) {
             case Requests.ParamValue.ParamSelect.CARD_USER:
                 reqUser(strRequest[0], response);
@@ -147,7 +160,7 @@ public class ServerEntry extends HttpServlet {
         }
     }
 
-    private void reqLogin(String[] request, HttpServletResponse response) throws DatabaseException, SqlQueryException, EmptyResultException, IOException {
+    private void reqLogin(String[] request, HttpServletResponse response) throws DatabaseException, EmptyResultException, IOException {
         if (request != null && request.length < 2) {
             return; // THROW ERROR !!
         }
@@ -159,7 +172,7 @@ public class ServerEntry extends HttpServlet {
         }
     }
 
-    private void reqViewAllJokes(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException, SqlQueryException {
+    private void reqViewAllJokes(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException {
         if (request != null && request.length < 3) {
             return; // THROW ERROR !!
         }
@@ -172,7 +185,7 @@ public class ServerEntry extends HttpServlet {
         writeResponse(response, result);
     }
 
-    private void reqJokeView(String[] request, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
+    private void reqJokeView(String[] request, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException, SQLException {
         if (request != null && request.length < 4) {
             System.out.println("requestLength == 0 | < 4");
             return; // THROW ERROR !!
@@ -203,7 +216,7 @@ public class ServerEntry extends HttpServlet {
         writeResponse(response, result);
     }
 
-    private void reqUser(String request, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
+    private void reqUser(String request, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException {
         int id = -1;
         id = Integer.parseInt(request);
         System.out.println("reqProfil id = " + id);
@@ -212,7 +225,7 @@ public class ServerEntry extends HttpServlet {
         writeResponse(response, result);
     }
 
-    private void reqJoke(String request, HttpServletResponse response) throws IOException, DatabaseException, SqlQueryException, EmptyResultException {
+    private void reqJoke(String request, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException {
         int id = -1;
         id = Integer.parseInt(request);
         System.out.println("reqWitz id = " + id);

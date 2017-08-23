@@ -25,11 +25,13 @@ public class JDBCConnector {
 
     public static void initConnection() throws DatabaseException {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Properties props = new Properties();
-            props.setProperty("user", DB_USER);
-            props.setProperty("password", DB_PWD);
-            con = DriverManager.getConnection(DB_URL, props);
+            if (con == null || con.isClosed()) {
+                Class.forName("com.mysql.jdbc.Driver");
+                Properties props = new Properties();
+                props.setProperty("user", DB_USER);
+                props.setProperty("password", DB_PWD);
+                con = DriverManager.getConnection(DB_URL, props);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage());

@@ -8,7 +8,6 @@ import de.services.exceptions.DatabaseException;
 import de.services.exceptions.DatabaseInconsistenceException;
 import de.services.exceptions.EmptyResultException;
 import de.services.exceptions.NoSuchUserException;
-import de.services.exceptions.SqlQueryException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -78,7 +77,7 @@ public class UserControl {
         return result;
     }
 
-    public DataLUser checkAuthentication(String email, String passwort) throws DatabaseException, SqlQueryException, NoSuchUserException, DatabaseInconsistenceException, EmptyResultException {
+    public DataLUser checkAuthentication(String email, String passwort) throws DatabaseException, NoSuchUserException, DatabaseInconsistenceException, EmptyResultException {
         PreparedStatement psLogin = UserDAO.getInstance().checkLogin();
         DBService.setString(psLogin, 1, email);
         DBService.setString(psLogin, 2, email);
