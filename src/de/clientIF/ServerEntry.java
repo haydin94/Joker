@@ -55,7 +55,9 @@ public class ServerEntry extends HttpServlet {
             JDBCConnector.initConnection();
             out.println("Connection to Database etablished!");
             out.println("JokeView: ID = 1, justComments = false, start = 0, count = 20");
-            out.println(ViewFactory.getInstance().createJokeView(1, false, 0, 20));
+            DtoJokeView jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
+            out.println(jv);
+            writeResponse(response, jv);
             JDBCConnector.closeConnect();
         } catch (DatabaseException ex) {
             out.println("Connection to Database could not be etablished!");
