@@ -234,11 +234,14 @@ public class ServerEntry extends HttpServlet {
         ArrayList<String> list = new ArrayList<>();
         int i = 0;
         String tmp = null;
+        
+        System.out.println("Beginne Body zu lesen!");
         while ((tmp = reader.readLine()) != null) {
             list.add(tmp);
             i++;
             System.out.println("Body: " + tmp);
         }
+        System.out.println("ReadRequest ende!");
         try {
             reader.close();
         } catch (IOException ex) {
@@ -250,7 +253,6 @@ public class ServerEntry extends HttpServlet {
             throw new EmptyBodyException();
         }
         String[] result = (String[]) list.toArray(new String[list.size()]);
-        System.out.println("ReadRequest ende!");
         return result;
     }
 
