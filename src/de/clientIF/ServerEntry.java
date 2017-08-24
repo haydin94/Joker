@@ -241,7 +241,9 @@ public class ServerEntry extends HttpServlet {
             System.out.println("Body: " + tmp);
         }
         try {
-            reader.reset();
+            if (reader.markSupported()) {
+                reader.reset();
+            }
             reader.close();
         } catch (IOException ex) {
             System.out.println("reader fehler " + ex.getMessage());
@@ -251,7 +253,6 @@ public class ServerEntry extends HttpServlet {
             System.out.println("Verdammt warum EmptyBody??");
             throw new EmptyBodyException();
         }
-
         String[] result = (String[]) list.toArray(new String[list.size()]);
         System.out.println("ReadRequest ende!");
         return result;
