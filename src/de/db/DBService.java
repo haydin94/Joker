@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import de.services.exceptions.DatabaseException;
-import de.services.exceptions.SqlQueryException;
 
 /**
  * @author haydin
@@ -24,46 +23,46 @@ public class DBService {
         return rs;
     }
     
-    public static ArrayList<Object[]> execPrepStmtRetAL(PreparedStatement ps) throws DatabaseException, SqlQueryException {
+    public static ArrayList<Object[]> execPrepStmtRetAL(PreparedStatement ps) throws DatabaseException {
         ArrayList<Object[]> aL;
         try {
             rs = ps.executeQuery();
             aL = convertRsToAl(rs);
         } catch (SQLException ex) {
-            throw new SqlQueryException("Fehler im SQL Code: " + ex.getMessage());
+            throw new DatabaseException("Fehler im SQL Code: " + ex.getMessage());
         }
         return aL;
     }
-    public static ResultSet execPrepStmt(PreparedStatement ps) throws DatabaseException, SqlQueryException {
+    public static ResultSet execPrepStmt(PreparedStatement ps) throws DatabaseException {
         try {
             rs = ps.executeQuery();
         } catch (SQLException ex) {
-            throw new SqlQueryException("Fehler im SQL Code: " + ex.getMessage());
+            throw new DatabaseException("Fehler im SQL Code: " + ex.getMessage());
         }
         return rs;
     }
     
     // Für abfragen mit Rückgabe als ResultSet
-    public static ArrayList<Object[]> executeQueryReturnAL(String sql) throws DatabaseException, SqlQueryException {
+    public static ArrayList<Object[]> executeQueryReturnAL(String sql) throws DatabaseException {
         Statement stmt = JDBCConnector.getStatement();
         ArrayList<Object[]> aL;
         try {
             rs = stmt.executeQuery(sql);
             aL = convertRsToAl(rs);
         } catch (SQLException ex) {
-            throw new SqlQueryException("Fehler im SQL Code: " + ex.getMessage());
+            throw new DatabaseException("Fehler im SQL Code: " + ex.getMessage());
         }
         return aL;
     }
     
 
     // Für Abfragen ohne Rückgabe, zum eintragen, löschen und ändern von Werten
-    public static void executeUpdate(String sql) throws DatabaseException, SqlQueryException {
+    public static void executeUpdate(String sql) throws DatabaseException {
         Statement stmt = JDBCConnector.getStatement();
         try {
             stmt.execute(sql);
         } catch (SQLException ex) {
-            throw new SqlQueryException("Fehler im SQL Code: " + ex.getMessage());
+            throw new DatabaseException("Fehler im SQL Code: " + ex.getMessage());
         }
     }
 

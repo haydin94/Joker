@@ -22,7 +22,7 @@ public class JokeControl {
         return control;
     }
 
-    public ArrayList<DtoCardJokeTC> getAllJokesView(String category, int start, int count) throws EmptyResultException {
+    public ArrayList<DtoCardJokeTC> getAllJokesView(String category, int start, int count) throws EmptyResultException, DatabaseException {
         ViewFactory factory = ViewFactory.getInstance();
 
         ArrayList<DtoCardJokeTC> result = factory.createAllJokesView(category, start, count);

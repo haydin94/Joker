@@ -37,6 +37,8 @@ public class JDBCConnector {
             throw new DatabaseException(e.getMessage());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            throw new DatabaseException(e.getMessage());
+
         }
     }
 
@@ -48,7 +50,8 @@ public class JDBCConnector {
             }
             stmt = con.createStatement();
         } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
+            System.out.println(ex.getMessage());
+            throw new DatabaseException(ex.getMessage());
         }
         return stmt;
     }
@@ -62,7 +65,8 @@ public class JDBCConnector {
             stmt = con.prepareStatement(pstmt, ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
         } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
+            ex.printStackTrace();
+            throw new DatabaseException(ex.getMessage());
         }
         return stmt;
     }
@@ -71,7 +75,7 @@ public class JDBCConnector {
         try {
             con.close();
         } catch (SQLException ex) {
-            throw new DatabaseException();
+            throw new DatabaseException(ex.getMessage());
         }
     }
 

@@ -23,7 +23,6 @@ import de.services.exceptions.DatabaseException;
 import de.services.exceptions.DatabaseInconsistenceException;
 import de.services.exceptions.EmptyBodyException;
 import de.services.exceptions.EmptyResultException;
-import de.services.exceptions.FailedToLoadException;
 import de.services.exceptions.NoSuchUserException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -71,9 +70,7 @@ public class ServerEntry extends HttpServlet {
         try {
             jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
         } catch (DatabaseException ex) {
-            Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
         out.println(jv);
         writeResponse(response, jv);
@@ -91,7 +88,7 @@ public class ServerEntry extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("Beginne DoPost");
+        System.out.println("DoPost Anfrage");
         try {
             System.out.println("Stelle Datenbankverbindung her...");
             JDBCConnector.initConnection();
@@ -200,7 +197,7 @@ public class ServerEntry extends HttpServlet {
         writeResponse(response, result);
     }
 
-    private void reqUserView(String[] request, HttpServletResponse response) throws EmptyResultException, IOException {
+    private void reqUserView(String[] request, HttpServletResponse response) throws EmptyResultException, IOException, DatabaseException {
         if (request != null && request.length < 4) {
             return; // THROW ERROR !!
         }

@@ -38,15 +38,21 @@ public class ViewFactory {
         return factory;
     }
 
-    public DtoJokeView createJokeView(int jokeId, boolean justComments, int start, int count) throws DatabaseException, SQLException {
+    public DtoJokeView createJokeView(int jokeId, boolean justComments, int start, int count) throws DatabaseException {
         DtoJokeView result = new DtoJokeView();
-        if (!justComments) {        // if not just Comments -> means also the JokeCard
-            PreparedStatement ps = JokeDAO.getInstance().getJokeCard(true);
-            DBService.setInt(ps, 1, jokeId);
-            ResultSet rs = DBService.execPrepStmt(ps);
-            result.setJoke(ORM.mapDataJoke(rs, "j"));
-            result.setUserJoke(ORM.mapDataUser(rs, "u"));
-            createUserImage(result.getUserJoke(), false);
+        if (!justComments) {
+            try {
+                // if not just Comments -> means also the JokeCard
+                PreparedStatement ps = JokeDAO.getInstance().getJokeCard(true);
+                DBService.setInt(ps, 1, jokeId);
+                ResultSet rs = DBService.execPrepStmt(ps);
+                result.setJoke(ORM.mapDataJoke(rs, "j"));
+                result.setUserJoke(ORM.mapDataUser(rs, "u"));
+                createUserImage(result.getUserJoke(), false);
+            } catch (SQLException ex) {
+                System.out.println("SqlException: " + ex.getMessage());
+                throw new DatabaseException("SqlException: " + ex.getMessage());
+            }
         }
         // Always get Comments
         result.setComments(createCommentCards(jokeId, start, count));
@@ -54,7 +60,7 @@ public class ViewFactory {
         return result;
     }
 
-    public DtoUserView createUserView(int userId, boolean logged, int start, int count) throws DatabaseException, SQLException{
+    public DtoUserView createUserView(int userId, boolean logged, int start, int count) throws DatabaseException {
         DtoUserView result = new DtoUserView();
         if (logged) {
             result.setUser(createLUser(userId));
@@ -67,7 +73,7 @@ public class ViewFactory {
 
     }
 
-    public ArrayList<DtoCardComment> createCommentCards(int jokeId, int start, int count) throws DatabaseException, SQLException{
+    public ArrayList<DtoCardComment> createCommentCards(int jokeId, int start, int count) throws DatabaseException {
         ArrayList<DtoCardComment> result = new ArrayList<>();
         PreparedStatement ps = CommentDAO.getInstance().getCommentCardBetween(true);
         DBService.setInt(ps, 1, jokeId);
@@ -82,13 +88,14 @@ public class ViewFactory {
                 createUserImage(comment.getUser(), true);
                 result.add(comment);
             }
-        } catch (DatabaseException  | SQLException ex) {
-            Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            System.out.println("SqlException: " + ex.getMessage());
+            throw new DatabaseException("SqlException: " + ex.getMessage());
         }
         return result;
     }
 
-    public ArrayList<DtoCardJokeTC> createAllJokesView(String category, int start, int count) throws DatabaseException, SQLException{
+    public ArrayList<DtoCardJokeTC> createAllJokesView(String category, int start, int count) throws DatabaseException {
         category = category == null || category.equals("") ? "%" : category;
         PreparedStatement ps = JokeDAO.getInstance().getAllJokesViewBetween(true, true);
         DBService.setString(ps, 1, category);
@@ -98,13 +105,14 @@ public class ViewFactory {
         try {
             ResultSet rs = DBService.execPrepStmt(ps);
             result = mapCardJokeTC(rs);
-        } catch (DatabaseException | SQLException ex) {
-            Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            System.out.println("SqlException: " + ex.getMessage());
+            throw new DatabaseException("SqlException: " + ex.getMessage());
         }
         return result;
     }
 
-    private ArrayList<DtoCardJokeTC> createUserJokes(int userId, int start, int count) throws DatabaseException, SQLException{
+    private ArrayList<DtoCardJokeTC> createUserJokes(int userId, int start, int count) throws DatabaseException {
         PreparedStatement ps = JokeDAO.getInstance().getUserJokesBetween(true, true);
         DBService.setInt(ps, 1, userId);
         DBService.setInt(ps, 2, start);
@@ -113,8 +121,9 @@ public class ViewFactory {
         try {
             ResultSet rs = DBService.execPrepStmt(ps);
             result = mapCardJokeTC(rs);
-        } catch (DatabaseException | SQLException ex) {
-            Logger.getLogger(ViewFactory.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            System.out.println("SqlException: " + ex.getMessage());
+            throw new DatabaseException("SqlException: " + ex.getMessage());
         }
         return result;
     }
@@ -141,7 +150,7 @@ public class ViewFactory {
         return result;
     }
 
-    private DataUser createUser(int userId) throws DatabaseException, SQLException {
+    private DataUser createUser(int userId) throws DatabaseException {
         DataUser user = null;
         PreparedStatement ps = UserDAO.getInstance().getUser(true);
         DBService.setInt(ps, 1, userId);
@@ -150,14 +159,14 @@ public class ViewFactory {
             rs = DBService.execPrepStmt(ps);
             user = ORM.mapDataUser(rs, "u");
 
-        } catch (DatabaseException  | SQLException ex) {
+        } catch (DatabaseException | SQLException ex) {
             Logger.getLogger(ViewFactory.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
         return user;
     }
 
-    private DataLUser createLUser(int userId) throws DatabaseException, SQLException {
+    private DataLUser createLUser(int userId) throws DatabaseException {
         DataLUser user = null;
         PreparedStatement ps = UserDAO.getInstance().getLuser(true);
         DBService.setInt(ps, 1, userId);

@@ -67,7 +67,7 @@ public class UserControl {
 //
 //        return user;
 //    }
-    public DtoUserView getUserView(int userId, boolean logged, int start, int count) throws EmptyResultException {
+    public DtoUserView getUserView(int userId, boolean logged, int start, int count) throws EmptyResultException, DatabaseException {
         ViewFactory factory = ViewFactory.getInstance();
 
         DtoUserView result = factory.createUserView(userId, logged, start, count);
