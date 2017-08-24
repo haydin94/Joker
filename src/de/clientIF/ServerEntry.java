@@ -66,15 +66,14 @@ public class ServerEntry extends HttpServlet {
         out.println("RequestLength: " + request.getContentLength());
         out.println("RequestType: " + request.getContentType());
         out.println("JokeView: ID = 1, justComments = false, start = 0, count = 20");
-        DtoJokeView jv = null;
-        try {
-            jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
-        } catch (DatabaseException ex) {
-            System.out.println(ex.getMessage());
-        }
-        out.println(jv);
-        writeResponse(response, jv);
-        out.println("Connection to Database could not be etablished!");
+//        DtoJokeView jv = null;
+//        try {
+//            jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
+//        } catch (DatabaseException ex) {
+//            System.out.println(ex.getMessage());
+//        }
+//        out.println(jv);
+//        writeResponse(response, jv);
         out.flush();
         out.close();
     }
