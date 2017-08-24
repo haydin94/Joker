@@ -104,7 +104,7 @@ public class ServerEntry extends HttpServlet {
         String[] reqBody = null;
         try {
             System.out.println("Lese Anfrage");
-            reqBody = readRequest(request.getReader(), request.getContentLength());
+            reqBody = readRequest(request.getReader());
         } catch (EmptyBodyException e) {
             response.sendError(ResponseCodes.EMPTYBODYERROR, "Error! RequestBody is empty!");
         }
@@ -230,18 +230,16 @@ public class ServerEntry extends HttpServlet {
         writeResponse(response, result);
     }
 
-    private String[] readRequest(BufferedReader reader, int size) throws IOException, EmptyBodyException {
+    private String[] readRequest(BufferedReader reader) throws IOException, EmptyBodyException {
         ArrayList<String> list = new ArrayList<>();
-
-        int i = 0;
         String tmp = null;
         while ((tmp = reader.readLine()) != null) {
             list.add(tmp);
-            i++;
             System.out.println("Body: " + tmp);
         }
         try {
             if (reader.markSupported()) {
+                reader.mark(0);
                 reader.reset();
             }
             reader.close();
