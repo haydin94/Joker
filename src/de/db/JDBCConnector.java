@@ -8,8 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import de.services.exceptions.DatabaseException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class JDBCConnector {
 
@@ -81,7 +79,6 @@ public class JDBCConnector {
         try {
             con.isValid(1000);
         } catch (SQLException ex) {
-            ex.printStackTrace();
             throw new DatabaseException(ex.getMessage());
         }
 

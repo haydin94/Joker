@@ -70,14 +70,14 @@ public class ServerEntry extends HttpServlet {
         out.println("RequestLength: " + request.getContentLength());
         out.println("RequestType: " + request.getContentType());
         out.println("JokeView: ID = 1, justComments = false, start = 0, count = 20");
-//        DtoJokeView jv = null;
-//        try {
-//            jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
-//        } catch (DatabaseException ex) {
-//            System.out.println(ex.getMessage());
-//        }
-//        out.println(jv);
-//        writeResponse(response, jv);
+        DtoJokeView jv = null;
+        try {
+            jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
+        } catch (DatabaseException ex) {
+            System.out.println(ex.getMessage());
+        }
+        out.println(jv);
+        writeResponse(response, jv);
         out.flush();
         out.close();
     }
@@ -98,7 +98,7 @@ public class ServerEntry extends HttpServlet {
             JDBCConnector.testConnection();
             System.out.println("Connection to Database confirmed");
         } catch (DatabaseException ex) {
-            System.err.println("Database Connection not valid: " + ex.getMessage());
+            System.err.println("Database Connection not valid: ");
             try {
                 System.out.println("Connect to Database...");
                 JDBCConnector.initConnection();
@@ -107,6 +107,7 @@ public class ServerEntry extends HttpServlet {
                 response.sendError(500, "An Internal Error has Occured! No Connection to Database!");
                 System.err.println("Connection to Database could not be etablished!");
                 e.printStackTrace();
+                System.out.println("End of Request \n --------");
             }
         }
 
@@ -131,18 +132,24 @@ public class ServerEntry extends HttpServlet {
             } catch (DatabaseException e) {
                 response.sendError(ResponseCodes.DATABSEERROR, "Error while connecting to the Database!");
                 e.printStackTrace();
+                System.out.println("End of Request \n --------");
             } catch (EmptyResultException e) {
                 response.sendError(ResponseCodes.EMPTYBODYERROR, e.getMessage());
                 e.printStackTrace();
+                System.out.println("End of Request \n --------");
             } catch (SQLException e) {
                 response.sendError(ResponseCodes.SQLERROR, e.getMessage());
                 e.printStackTrace();
+                System.out.println("End of Request \n --------");
             } catch (InvalidBodyException e) {
                 response.sendError(ResponseCodes.INVALIDBODYERROR, e.getMessage());
                 e.printStackTrace();
+                System.out.println("End of Request \n --------");
             }
         } else {
             response.sendError(ResponseCodes.INVALIDBODYERROR, "Invalid Header! type=" + type + " is invalid!");
+            System.err.println("Invalid Header! type=" + type + " is invalid!");
+            System.out.println("End of Request \n --------");
         }
     }
 
