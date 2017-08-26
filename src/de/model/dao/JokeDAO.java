@@ -56,8 +56,8 @@ public class JokeDAO {
     }
 
 
-    // Witz View mit allen zugehörigen Kommentaren, 
-    //Erstmal nicht benutzen da Joke immer wieder für jeden Kommentar geliefert wird
+    // Witz View mit allen zugehoerigen Kommentaren, 
+    //Erstmal nicht benutzen da Joke immer wieder fuer jeden Kommentar geliefert wird
     public PreparedStatement getJokeView() {
         String sql = "SELECT * "
                 + " FROM " + VIEW_JOKEVIEW

@@ -23,10 +23,12 @@ import de.services.exceptions.DatabaseException;
 import de.services.exceptions.DatabaseInconsistenceException;
 import de.services.exceptions.EmptyBodyException;
 import de.services.exceptions.EmptyResultException;
+import de.services.exceptions.InvalidBodyException;
 import de.services.exceptions.NoSuchUserException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -57,6 +59,8 @@ public class ServerEntry extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        System.out.println("-------------------------------");
+        System.out.println("Neue \"GET\" Anfrage");
         PrintWriter out = new PrintWriter(response.getOutputStream());
         out.println("Willkommen beim Jokee-Server!");
         out.println("Bitte benutzen Sie die Post Methode um eine Anfrage zu stellen");
@@ -87,16 +91,23 @@ public class ServerEntry extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("DoPost Anfrage");
+        System.out.println("-------------------------------");
+        System.out.println("Neue \"POST\" Anfrage");
         try {
-            System.out.println("Stelle Datenbankverbindung her...");
-            JDBCConnector.initConnection();
-            System.out.println("Datenbankverbindung hergestellt");
+            System.out.println("Check Database Connection...");
+            JDBCConnector.testConnection();
+            System.out.println("Connection to Database confirmed");
         } catch (DatabaseException ex) {
-            PrintWriter out = new PrintWriter(response.getOutputStream());
-            System.out.println("Connection to Database could not be etablished!");
-            System.out.println("MESSAGE: " + ex.getMessage());
-            System.out.println("LOCALIZEDMESSAGE: " + ex.getLocalizedMessage());
+            System.err.println("Database Connection not valid: " + ex.getMessage());
+            try {
+                System.out.println("Connect to Database...");
+                JDBCConnector.initConnection();
+                System.out.println("Connection to Database etablished");
+            } catch (DatabaseException e) {
+                response.sendError(500, "An Internal Error has Occured! No Connection to Database!");
+                System.err.println("Connection to Database could not be etablished!");
+                e.printStackTrace();
+            }
         }
 
         // Lese Anfrage (Body)
@@ -121,15 +132,19 @@ public class ServerEntry extends HttpServlet {
                 response.sendError(ResponseCodes.DATABSEERROR, "Error while connecting to the Database!");
                 e.printStackTrace();
             } catch (EmptyResultException e) {
+                response.sendError(ResponseCodes.EMPTYBODYERROR, e.getMessage());
+                e.printStackTrace();
+            } catch (SQLException e) {
                 response.sendError(ResponseCodes.SQLERROR, e.getMessage());
                 e.printStackTrace();
-            } catch (SQLException ex) {
-                Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvalidBodyException e) {
+                response.sendError(ResponseCodes.INVALIDBODYERROR, e.getMessage());
+                e.printStackTrace();
             }
         }
     }
 
-    private void handleSelectRequest(String req, String[] strRequest, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException, SQLException {
+    private void handleSelectRequest(String req, String[] strRequest, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException, SQLException, InvalidBodyException {
         switch (req) {
             case Requests.ParamValue.ParamSelect.CARD_USER:
                 reqUser(strRequest[0], response);
@@ -156,21 +171,24 @@ public class ServerEntry extends HttpServlet {
         }
     }
 
-    private void reqLogin(String[] request, HttpServletResponse response) throws DatabaseException, EmptyResultException, IOException {
+    private void reqLogin(String[] request, HttpServletResponse response) throws DatabaseException, EmptyResultException, IOException, InvalidBodyException {
         if (request != null && request.length < 2) {
-            return; // THROW ERROR !!
+            System.out.println("requestLength == 0 | < 2");
+            throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
         }
         try {
             DataLUser user = UserControl.getInstance().checkAuthentication(request[0], request[1]);
             writeResponse(response, user);
         } catch (NoSuchUserException | DatabaseInconsistenceException ex) {
-            Logger.getLogger(ServerEntry.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendError(ResponseCodes.IOERROR, "No such User!");     // TODO: Noch abändern!
+            ex.printStackTrace();
         }
     }
 
-    private void reqViewAllJokes(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException {
+    private void reqViewAllJokes(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException, InvalidBodyException {
         if (request != null && request.length < 3) {
-            return; // THROW ERROR !!
+            System.out.println("requestLength == 0 | < 3");
+            throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
         }
         String category = request[0];
         int start = Integer.parseInt(request[1]);
@@ -181,10 +199,10 @@ public class ServerEntry extends HttpServlet {
         writeResponse(response, result);
     }
 
-    private void reqJokeView(String[] request, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException, SQLException {
+    private void reqJokeView(String[] request, HttpServletResponse response) throws IOException, DatabaseException, EmptyResultException, SQLException, InvalidBodyException {
         if (request != null && request.length < 4) {
             System.out.println("requestLength == 0 | < 4");
-            return; // THROW ERROR !!
+            throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
         }
         int id = Integer.parseInt(request[0]);
         boolean justCom = Boolean.parseBoolean(request[1]);
@@ -196,9 +214,10 @@ public class ServerEntry extends HttpServlet {
         writeResponse(response, result);
     }
 
-    private void reqUserView(String[] request, HttpServletResponse response) throws EmptyResultException, IOException, DatabaseException {
+    private void reqUserView(String[] request, HttpServletResponse response) throws EmptyResultException, IOException, DatabaseException, InvalidBodyException {
         if (request != null && request.length < 4) {
-            return; // THROW ERROR !!
+            System.out.println("requestLength == 0 | < 4");
+            throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
         }
         boolean logged = request[0].equals("l");
         int id = Integer.parseInt(request[1]);
@@ -234,18 +253,18 @@ public class ServerEntry extends HttpServlet {
         ArrayList<String> list = new ArrayList<>();
         int i = 0;
         String tmp = null;
-        
+
         System.out.println("Beginne Body zu lesen!");
         while ((tmp = reader.readLine()) != null) {
             list.add(tmp);
             i++;
-            System.out.println("Body: " + tmp);
+            System.out.println("Body " + i + ": " + tmp);
         }
         System.out.println("ReadRequest ende!");
         try {
             reader.close();
         } catch (IOException ex) {
-            System.out.println("reader fehler " + ex.getMessage());
+            System.out.println("Reader fehler " + ex.getMessage());
             ex.printStackTrace();
         }
         if (list.get(0) == null) {

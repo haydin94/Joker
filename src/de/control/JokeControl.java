@@ -5,7 +5,6 @@ import de.haydin.model.unions.DtoJokeView;
 import de.haydin.model.unions.DtoCardJokeTC;
 import de.services.exceptions.DatabaseException;
 import de.services.exceptions.EmptyResultException;
-import de.services.exceptions.FailedToLoadException;
 import java.sql.SQLException;
 
 public class JokeControl {
@@ -27,7 +26,7 @@ public class JokeControl {
 
         ArrayList<DtoCardJokeTC> result = factory.createAllJokesView(category, start, count);
         if (result == null || result.isEmpty()) {
-            throw new de.services.exceptions.EmptyResultException("The Query didn´t deliver any result!");
+            throw new de.services.exceptions.EmptyResultException("The Query did not deliver any result!");
         }
         return result;
     }
@@ -37,7 +36,7 @@ public class JokeControl {
         DtoJokeView result = factory.createJokeView(jokeId, justComments, start, count);
 
         if (result == null) {
-            throw new de.services.exceptions.EmptyResultException("The Query didn´t delivered a result!");
+            throw new de.services.exceptions.EmptyResultException("The Query did not delivered a result!");
         }
         return result;
     }

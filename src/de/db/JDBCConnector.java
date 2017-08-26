@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import de.services.exceptions.DatabaseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JDBCConnector {
 
@@ -32,13 +34,9 @@ public class JDBCConnector {
                 props.setProperty("password", DB_PWD);
                 con = DriverManager.getConnection(DB_URL, props);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage());
-
         }
     }
 
@@ -77,6 +75,16 @@ public class JDBCConnector {
         } catch (SQLException ex) {
             throw new DatabaseException(ex.getMessage());
         }
+    }
+
+    public static void testConnection() throws DatabaseException {
+        try {
+            con.isValid(1000);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new DatabaseException(ex.getMessage());
+        }
+
     }
 
     public static String getDB_URL() {
