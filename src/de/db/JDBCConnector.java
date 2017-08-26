@@ -33,7 +33,6 @@ public class JDBCConnector {
                 con = DriverManager.getConnection(DB_URL, props);
             }
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
             throw new DatabaseException(e.getMessage());
         }
     }
@@ -58,8 +57,7 @@ public class JDBCConnector {
             if (con.isClosed()) {
                 initConnection();
             }
-            stmt = con.prepareStatement(pstmt, ResultSet.TYPE_SCROLL_SENSITIVE,
-                    ResultSet.CONCUR_UPDATABLE);
+            stmt = con.prepareStatement(pstmt, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         } catch (SQLException ex) {
             ex.printStackTrace();
             throw new DatabaseException(ex.getMessage());
@@ -70,7 +68,7 @@ public class JDBCConnector {
     public static void closeConnect() throws DatabaseException {
         try {
             con.close();
-        } catch (SQLException ex) {
+        } catch (SQLException | NullPointerException ex) {
             throw new DatabaseException(ex.getMessage());
         }
     }
@@ -78,7 +76,7 @@ public class JDBCConnector {
     public static void testConnection() throws DatabaseException {
         try {
             con.isValid(1000);
-        } catch (SQLException ex) {
+        } catch (SQLException | NullPointerException ex) {
             throw new DatabaseException(ex.getMessage());
         }
 

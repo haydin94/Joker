@@ -29,8 +29,6 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 
 /**
@@ -57,10 +55,9 @@ public class ServerEntry extends HttpServlet {
         System.out.println("Connection to Database etablished!");
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-       System.out.println("-------------------------------");
-        System.out.println("Neue \"POST\" Anfrage");
+    private boolean connectToDatabase(String method, HttpServletResponse response) throws IOException {
+        System.out.println("-------------------------------");
+        System.out.println("Neue \" " + method + "\" Anfrage");
         try {
             System.out.println("Check Database Connection...");
             JDBCConnector.testConnection();
@@ -72,12 +69,21 @@ public class ServerEntry extends HttpServlet {
                 JDBCConnector.initConnection();
                 System.out.println("Connection to Database etablished");
             } catch (DatabaseException e) {
-                response.sendError(500, "An Internal Error has Occured! No Connection to Database!");
+                response.sendError(500, "Server is currently offline, please try again later!");
                 System.err.println("Connection to Database could not be etablished!");
+                System.err.println("Sending ErrorCode 500: " + "Server is currently offline, please try again later!");
                 e.printStackTrace();
                 System.out.println("End of Request \n --------");
-                return;
+                return false;
             }
+        }
+        return true;
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!connectToDatabase("GET", response)) {
+            return;
         }
         PrintWriter out = new PrintWriter(response.getOutputStream());
         out.println("Willkommen beim Jokee-Server!");
@@ -91,11 +97,11 @@ public class ServerEntry extends HttpServlet {
         DtoJokeView jv = null;
         try {
             jv = ViewFactory.getInstance().createJokeView(1, false, 0, 20);
+            out.println(jv.toString());
         } catch (DatabaseException ex) {
             System.out.println(ex.getMessage());
         }
-        out.println(jv);
-        writeResponse(response, jv);
+//        writeResponse(response, jv);
         out.flush();
         out.close();
     }
@@ -109,27 +115,9 @@ public class ServerEntry extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("-------------------------------");
-        System.out.println("Neue \"POST\" Anfrage");
-        try {
-            System.out.println("Check Database Connection...");
-            JDBCConnector.testConnection();
-            System.out.println("Connection to Database confirmed");
-        } catch (DatabaseException ex) {
-            System.err.println("Database Connection not valid: ");
-            try {
-                System.out.println("Connect to Database...");
-                JDBCConnector.initConnection();
-                System.out.println("Connection to Database etablished");
-            } catch (DatabaseException e) {
-                response.sendError(500, "An Internal Error has Occured! No Connection to Database!");
-                System.err.println("Connection to Database could not be etablished!");
-                e.printStackTrace();
-                System.out.println("End of Request \n --------");
-                return;
-            }
+        if (!connectToDatabase("POST", response)) {
+            return;
         }
-
         // Lese Anfrage (Body)
         // Muss unbedingt VOR getParameter gelesen werden!!
         String[] reqBody = null;
@@ -145,7 +133,7 @@ public class ServerEntry extends HttpServlet {
         System.out.println(Requests.ParamType.TYPE + "=" + type);
         System.out.println(Requests.ParamType.REQUEST + "=" + req);
         if (type != null && type.equals(Requests.ParamValue.UPDATE)) {
-        } else if (type != null && type.equals(Requests.ParamValue.UPDATE)) {
+        } else if (type != null && type.equals(Requests.ParamValue.SELECT)) {
             try {
                 handleSelectRequest(req, reqBody, response);
             } catch (DatabaseException e) {
@@ -315,7 +303,7 @@ public class ServerEntry extends HttpServlet {
     }
 
     private void printRequestInfo(HttpServletRequest request, String[] body) {
-        System.out.println("\n --> Anfrage von " + request.getLocalAddr());
+        System.out.println("Anfrage von " + request.getLocalAddr());
         System.out.println("RequestMethod: " + request.getMethod());
         System.out.println("RequestURL: " + request.getRequestURL());
         System.out.println("RequestLength: " + request.getContentLength());
