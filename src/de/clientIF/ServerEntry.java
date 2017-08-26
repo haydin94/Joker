@@ -125,7 +125,7 @@ public class ServerEntry extends HttpServlet {
         System.out.println(Requests.ParamType.TYPE + "=" + type);
         System.out.println(Requests.ParamType.REQUEST + "=" + req);
         if (type != null && type.equals(Requests.ParamValue.UPDATE)) {
-        } else {
+        } else if (type != null && type.equals(Requests.ParamValue.UPDATE)) {
             try {
                 handleSelectRequest(req, reqBody, response);
             } catch (DatabaseException e) {
@@ -141,6 +141,8 @@ public class ServerEntry extends HttpServlet {
                 response.sendError(ResponseCodes.INVALIDBODYERROR, e.getMessage());
                 e.printStackTrace();
             }
+        } else {
+            response.sendError(ResponseCodes.INVALIDBODYERROR, "Invalid Header! type=" + type + " is invalid!");
         }
     }
 
@@ -168,6 +170,7 @@ public class ServerEntry extends HttpServlet {
                 break;
 
             default:
+                throw new InvalidBodyException("Invalid Header! req=" + req + " is invalid!");
         }
     }
 
