@@ -59,8 +59,26 @@ public class ServerEntry extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("-------------------------------");
-        System.out.println("Neue \"GET\" Anfrage");
+       System.out.println("-------------------------------");
+        System.out.println("Neue \"POST\" Anfrage");
+        try {
+            System.out.println("Check Database Connection...");
+            JDBCConnector.testConnection();
+            System.out.println("Connection to Database confirmed");
+        } catch (DatabaseException ex) {
+            System.err.println("Database Connection not valid: ");
+            try {
+                System.out.println("Connect to Database...");
+                JDBCConnector.initConnection();
+                System.out.println("Connection to Database etablished");
+            } catch (DatabaseException e) {
+                response.sendError(500, "An Internal Error has Occured! No Connection to Database!");
+                System.err.println("Connection to Database could not be etablished!");
+                e.printStackTrace();
+                System.out.println("End of Request \n --------");
+                return;
+            }
+        }
         PrintWriter out = new PrintWriter(response.getOutputStream());
         out.println("Willkommen beim Jokee-Server!");
         out.println("Bitte benutzen Sie die Post Methode um eine Anfrage zu stellen");
@@ -108,6 +126,7 @@ public class ServerEntry extends HttpServlet {
                 System.err.println("Connection to Database could not be etablished!");
                 e.printStackTrace();
                 System.out.println("End of Request \n --------");
+                return;
             }
         }
 
