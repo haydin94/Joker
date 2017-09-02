@@ -1,6 +1,7 @@
 package de.control;
 
 import de.db.DBService;
+import de.haydin.model.entities.DataComment;
 import de.haydin.model.entities.DataLUser;
 import de.haydin.model.entities.DataUser;
 import de.haydin.model.unions.DtoCardComment;
@@ -95,10 +96,45 @@ public class ViewFactory {
         return result;
     }
 
+    public ArrayList<DataComment> createUserComments(int userId, int start, int count) throws DatabaseException {
+        ArrayList<DataComment> result = new ArrayList<>();
+        PreparedStatement ps = CommentDAO.getInstance().getCommentByUserBetween(true);
+        DBService.setInt(ps, 1, userId);
+        DBService.setInt(ps, 2, start);
+        DBService.setInt(ps, 3, count);
+        try {
+            ResultSet rs = DBService.execPrepStmt(ps);
+            while (rs.next()) {
+                DataComment comment = ORM.mapDataComment(rs, "c");
+                result.add(comment);
+            }
+        } catch (SQLException ex) {
+            System.out.println("SqlException: " + ex.getMessage());
+            throw new DatabaseException("SqlException: " + ex.getMessage());
+        }
+        return result;
+    }
+
     public ArrayList<DtoCardJokeTC> createAllJokesView(String category, int start, int count) throws DatabaseException {
         category = category == null || category.equals("") ? "%" : category;
         PreparedStatement ps = JokeDAO.getInstance().getAllJokesViewBetween(true, true);
         DBService.setString(ps, 1, category);
+        DBService.setInt(ps, 2, start);
+        DBService.setInt(ps, 3, count);
+        ArrayList<DtoCardJokeTC> result = new ArrayList<>();
+        try {
+            ResultSet rs = DBService.execPrepStmt(ps);
+            result = mapCardJokeTC(rs);
+        } catch (SQLException ex) {
+            System.out.println("SqlException: " + ex.getMessage());
+            throw new DatabaseException("SqlException: " + ex.getMessage());
+        }
+        return result;
+    }
+
+    public ArrayList<DtoCardJokeTC> createUserFavourites(int userId, int start, int count) throws DatabaseException {
+        PreparedStatement ps = JokeDAO.getInstance().getUserFavouritesBetween(true, true);
+        DBService.setInt(ps, 1, userId);
         DBService.setInt(ps, 2, start);
         DBService.setInt(ps, 3, count);
         ArrayList<DtoCardJokeTC> result = new ArrayList<>();

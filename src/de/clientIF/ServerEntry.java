@@ -11,6 +11,7 @@ import de.control.UserControl;
 import de.control.JokeControl;
 import de.control.ViewFactory;
 import de.db.JDBCConnector;
+import de.haydin.model.entities.DataComment;
 import de.haydin.model.entities.DataUser;
 import de.haydin.model.entities.DataJoke;
 import de.haydin.model.entities.DataLUser;
@@ -180,6 +181,12 @@ public class ServerEntry extends HttpServlet {
             case Requests.ParamValue.ParamSelect.VIEW_USERVIEW:
                 reqUserView(strRequest, response);
                 break;
+            case Requests.ParamValue.ParamSelect.VIEW_FAV:
+                reqViewFav(strRequest, response);
+                break;
+            case Requests.ParamValue.ParamSelect.VIEW_MYCOMMENTS:
+                reqViewUserComments(strRequest, response);
+                break;
             case Requests.ParamValue.ParamSelect.WITZ_BETWEEN:
                 break;
 
@@ -213,6 +220,34 @@ public class ServerEntry extends HttpServlet {
         System.out.println("reqViewAllJokes: category=" + category + ", s=" + start + ", l=" + length);
         ArrayList<DtoCardJokeTC> result = null;
         result = JokeControl.getInstance().getAllJokesView(category, start, length);
+        writeResponse(response, result);
+    }
+    
+    private void reqViewFav(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException, InvalidBodyException {
+        if (request != null && request.length < 3) {
+            System.out.println("requestLength == 0 | < 3");
+            throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
+        }
+        int userId = Integer.parseInt(request[0]);
+        int start = Integer.parseInt(request[1]);
+        int length = Integer.parseInt(request[2]);
+        System.out.println("reqViewFav: userId=" + userId + ", s=" + start + ", l=" + length);
+        ArrayList<DtoCardJokeTC> result = null;
+        result = JokeControl.getInstance().getUserFavourites(userId, start, length);
+        writeResponse(response, result);
+    }
+    
+    private void reqViewUserComments(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException, InvalidBodyException {
+        if (request != null && request.length < 3) {
+            System.out.println("requestLength == 0 | < 3");
+            throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
+        }
+        int userId = Integer.parseInt(request[0]);
+        int start = Integer.parseInt(request[1]);
+        int length = Integer.parseInt(request[2]);
+        System.out.println("reqViewUserComments: userId=" + userId + ", s=" + start + ", l=" + length);
+        ArrayList<DataComment> result = null;
+        result = JokeControl.getInstance().getUserComments(userId, start, length);
         writeResponse(response, result);
     }
 

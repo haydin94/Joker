@@ -7,6 +7,7 @@ public class JokeDAO {
 
     private static JokeDAO dao;
     private static final String VIEW_CARDJOKETC = "view_cardJokeTC";
+    private static final String VIEW_CARDJOKEFAV = "view_cardJokeFav";
     private static final String VIEW_CARDJOKE = "view_cardJoke"; // nur Witz mit jeweiligem Profil
     private static final String VIEW_JOKEVIEW = "view_jokeView";// -> + Kommentare, Witz mit Profil redundant!! 
 
@@ -33,11 +34,25 @@ public class JokeDAO {
                 + " LIMIT ?, ?";
         return DBService.getPreparedStatement(sql);
     }
+
     public PreparedStatement getUserJokesBetween(boolean asc, boolean justActiveJokes) {
         String order = asc ? "ASC" : "DESC";
         String sql = "SELECT * "
                 + " FROM " + VIEW_CARDJOKETC
                 + " WHERE j_userId = ?"
+                + " AND j_active = " + justActiveJokes
+                + " AND uj_active = True"
+                + " ORDER BY j_date " + order
+                + " LIMIT ?, ?";
+        return DBService.getPreparedStatement(sql);
+    }
+
+
+    public PreparedStatement getUserFavouritesBetween(boolean asc, boolean justActiveJokes) {
+        String order = asc ? "ASC" : "DESC";
+        String sql = "SELECT * "
+                + " FROM " + VIEW_CARDJOKEFAV
+                + " WHERE f_userId = ?"
                 + " AND j_active = " + justActiveJokes
                 + " AND uj_active = True"
                 + " ORDER BY j_date " + order
@@ -54,7 +69,6 @@ public class JokeDAO {
                 + " AND u_active LIKE " + active;
         return DBService.getPreparedStatement(sql);
     }
-
 
     // Witz View mit allen zugehoerigen Kommentaren, 
     //Erstmal nicht benutzen da Joke immer wieder fuer jeden Kommentar geliefert wird

@@ -15,9 +15,9 @@ public class JDBCConnector {
     private final static String DB_HOST = "mysql:";//localhost/";
     private final static String DB_PORT = "3306/";//8080
     private final static String DB_NAME = "JokeeDB";
-    static String url = "jdbc:mysql://localhost/Jokee";
-//    private final static String DB_URL = url;
+    static String testUrl = "jdbc:mysql://localhost/Jokee";
     private final static String DB_URL = DB_DRIVER + DB_HOST + DB_PORT + DB_NAME + "?autoReconnect=true&useSSL=false";
+//    private final static String DB_URL = testUrl;
     private static Connection con;
     private static Statement stmt;
     private static final String DB_USER = "root";
@@ -38,7 +38,7 @@ public class JDBCConnector {
     }
 
     public static Statement getStatement() throws DatabaseException {
-        Statement stmt = null;
+        stmt = null;
         try {
             if (con.isClosed()) {
                 initConnection();
@@ -52,17 +52,17 @@ public class JDBCConnector {
     }
 
     public static PreparedStatement getPreparedStatement(String pstmt) throws DatabaseException {
-        PreparedStatement stmt = null;
+        PreparedStatement psStmt = null;
         try {
             if (con.isClosed()) {
                 initConnection();
             }
-            stmt = con.prepareStatement(pstmt, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            psStmt = con.prepareStatement(pstmt, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         } catch (SQLException ex) {
             ex.printStackTrace();
             throw new DatabaseException(ex.getMessage());
         }
-        return stmt;
+        return psStmt;
     }
 
     public static void closeConnect() throws DatabaseException {
