@@ -53,6 +53,16 @@ public class JokeControl {
         }
         return result;
     }
+    
+    public ArrayList<DtoCardJokeTC> getUserJokes(int userId, int start, int count) throws EmptyResultException, DatabaseException {
+        ViewFactory factory = ViewFactory.getInstance();
+
+        ArrayList<DtoCardJokeTC> result = factory.createUserJokes(userId, start, count);
+        if (result == null || result.isEmpty()) {
+            throw new de.services.exceptions.EmptyResultException("The Query did not deliver any result!");
+        }
+        return result;
+    }
 
     public DtoJokeView getJokeView(int jokeId, boolean justComments, int start, int count) throws DatabaseException, EmptyResultException, SQLException {
         ViewFactory factory = ViewFactory.getInstance();

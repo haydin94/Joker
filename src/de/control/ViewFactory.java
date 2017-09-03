@@ -148,7 +148,7 @@ public class ViewFactory {
         return result;
     }
 
-    private ArrayList<DtoCardJokeTC> createUserJokes(int userId, int start, int count) throws DatabaseException {
+    public ArrayList<DtoCardJokeTC> createUserJokes(int userId, int start, int count) throws DatabaseException {
         PreparedStatement ps = JokeDAO.getInstance().getUserJokesBetween(true, true);
         DBService.setInt(ps, 1, userId);
         DBService.setInt(ps, 2, start);

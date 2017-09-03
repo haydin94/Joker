@@ -58,7 +58,7 @@ public class ServerEntry extends HttpServlet {
 
     private boolean connectToDatabase(String method, HttpServletResponse response) throws IOException {
         System.out.println("-------------------------------");
-        System.out.println("Neue \" " + method + "\" Anfrage");
+        System.out.println("New \" " + method + "\" Request");
         try {
             System.out.println("Check Database Connection...");
             JDBCConnector.testConnection();
@@ -72,7 +72,7 @@ public class ServerEntry extends HttpServlet {
             } catch (DatabaseException e) {
                 response.sendError(500, "Server is currently offline, please try again later!");
                 System.err.println("Connection to Database could not be etablished!");
-                System.err.println("Sending ErrorCode 500: " + "Server is currently offline, please try again later!");
+                System.err.println("Sending ErrorCode 500: Server is currently offline, please try again later!");
                 e.printStackTrace();
                 System.out.println("End of Request \n --------");
                 return false;
@@ -123,7 +123,7 @@ public class ServerEntry extends HttpServlet {
         // Muss unbedingt VOR getParameter gelesen werden!!
         String[] reqBody = null;
         try {
-            System.out.println("Lese Anfrage");
+            System.out.println("reading Request..");
             reqBody = readRequest(request.getReader(), request.getContentLength());
         } catch (EmptyBodyException e) {
             response.sendError(ResponseCodes.EMPTYBODYERROR, "Error! RequestBody is empty!");
@@ -181,11 +181,14 @@ public class ServerEntry extends HttpServlet {
             case Requests.ParamValue.ParamSelect.VIEW_USERVIEW:
                 reqUserView(strRequest, response);
                 break;
-            case Requests.ParamValue.ParamSelect.VIEW_FAV:
-                reqViewFav(strRequest, response);
-                break;
             case Requests.ParamValue.ParamSelect.VIEW_MYCOMMENTS:
                 reqViewUserComments(strRequest, response);
+                break;
+            case Requests.ParamValue.ParamSelect.SECTION_JOKETC:
+                reqSectionJokeTc(strRequest, response);
+                break;
+            case Requests.ParamValue.ParamSelect.VIEW_FAV:
+                reqViewFav(strRequest, response);
                 break;
             case Requests.ParamValue.ParamSelect.WITZ_BETWEEN:
                 break;
@@ -222,7 +225,7 @@ public class ServerEntry extends HttpServlet {
         result = JokeControl.getInstance().getAllJokesView(category, start, length);
         writeResponse(response, result);
     }
-    
+
     private void reqViewFav(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException, InvalidBodyException {
         if (request != null && request.length < 3) {
             System.out.println("requestLength == 0 | < 3");
@@ -236,7 +239,7 @@ public class ServerEntry extends HttpServlet {
         result = JokeControl.getInstance().getUserFavourites(userId, start, length);
         writeResponse(response, result);
     }
-    
+
     private void reqViewUserComments(String[] request, HttpServletResponse response) throws IOException, EmptyResultException, DatabaseException, InvalidBodyException {
         if (request != null && request.length < 3) {
             System.out.println("requestLength == 0 | < 3");
@@ -272,14 +275,28 @@ public class ServerEntry extends HttpServlet {
             throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
         }
         boolean logged = request[0].equals("l");
-        int id = Integer.parseInt(request[1]);
-        boolean justCom = Boolean.parseBoolean(request[2]);
-        int start = Integer.parseInt(request[3]);
-        int count = Integer.parseInt(request[4]);
+        int userId = Integer.parseInt(request[1]);
+        int start = Integer.parseInt(request[2]);
+        int count = Integer.parseInt(request[3]);
 
-        System.out.println("reqUserView logged=" + logged + ", id=" + id + ", justCom=" + justCom + ", start=" + start + ", count=" + count);
-        DtoUserView result = UserControl.getInstance().getUserView(id, logged, start, count);
+        System.out.println("reqUserView logged=" + logged + ", id=" + userId + ", start=" + start + ", count=" + count);
+        DtoUserView result = UserControl.getInstance().getUserView(userId, logged, start, count);
         System.out.println("de.clientIF.ServerEntry.reqUserView(): RESULT = \n" + result);
+        writeResponse(response, result);
+    }
+
+    private void reqSectionJokeTc(String[] request, HttpServletResponse response) throws EmptyResultException, IOException, DatabaseException, InvalidBodyException {
+        if (request != null && request.length < 4) {
+            System.out.println("requestLength == 0 | < 4");
+            throw new InvalidBodyException("Invalid Body: " + Arrays.toString(request));
+        }
+        int userId = Integer.parseInt(request[0]);
+        int start = Integer.parseInt(request[2]);
+        int count = Integer.parseInt(request[3]);
+
+        System.out.println("reqSectionJokeTc  userId=" + userId + ", start=" + start + ", count=" + count);
+        ArrayList<DtoCardJokeTC> result = JokeControl.getInstance().getUserJokes(userId, start, count);
+        System.out.println("de.clientIF.ServerEntry.reqSectionJokeTc(): RESULT = \n" + result);
         writeResponse(response, result);
     }
 
@@ -306,13 +323,12 @@ public class ServerEntry extends HttpServlet {
         int i = 0;
         String tmp = null;
 
-        System.out.println("Beginne Body zu lesen!");
         while ((tmp = reader.readLine()) != null) {
             list.add(tmp);
             i++;
             System.out.println("Body " + i + ": " + tmp);
         }
-        System.out.println("ReadRequest ende!");
+        System.out.println("reading Request finished!");
         try {
             reader.close();
         } catch (IOException ex) {

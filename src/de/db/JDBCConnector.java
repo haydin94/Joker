@@ -16,8 +16,8 @@ public class JDBCConnector {
     private final static String DB_PORT = "3306/";//8080
     private final static String DB_NAME = "JokeeDB";
     static String testUrl = "jdbc:mysql://localhost/Jokee";
-    private final static String DB_URL = DB_DRIVER + DB_HOST + DB_PORT + DB_NAME + "?autoReconnect=true&useSSL=false";
-//    private final static String DB_URL = testUrl;
+//    private final static String DB_URL = DB_DRIVER + DB_HOST + DB_PORT + DB_NAME + "?autoReconnect=true&useSSL=false";
+    private final static String DB_URL = testUrl;
     private static Connection con;
     private static Statement stmt;
     private static final String DB_USER = "root";
@@ -29,7 +29,7 @@ public class JDBCConnector {
                 Class.forName("com.mysql.jdbc.Driver");
                 Properties props = new Properties();
                 props.setProperty("user", DB_USER);
-                props.setProperty("password", DB_PWD);
+//                props.setProperty("password", DB_PWD);
                 con = DriverManager.getConnection(DB_URL, props);
             }
         } catch (SQLException | ClassNotFoundException e) {
