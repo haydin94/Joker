@@ -58,7 +58,7 @@ public class ServerEntry extends HttpServlet {
 
     private boolean connectToDatabase(String method, HttpServletResponse response) throws IOException {
         System.out.println("-------------------------------");
-        System.out.println("New \" " + method + "\" Request");
+        System.out.println("New \"" + method + "\" Request");
         try {
             System.out.println("Check Database Connection...");
             JDBCConnector.testConnection();
